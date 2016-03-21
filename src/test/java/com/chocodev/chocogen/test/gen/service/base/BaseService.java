@@ -6,7 +6,6 @@ import com.chocodev.chocogen.test.gen.model.SampleRequest;
 import com.chocodev.chocogen.test.gen.model.SampleResponse;
 import com.chocodev.chocogen.test.gen.util.ServiceContext;
 import com.chocodev.chocogen.test.gen.util.ServiceFilter;
-import com.chocodev.chocogen.test.gen.util.ServiceUtils;
 import com.chocodev.chocogen.test.gen.util.ResponseWrapper;
 import org.apache.commons.io.IOUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,7 +50,8 @@ public class BaseService
 			{
 				stringContents="{ \"items\":"+stringContents+"}";
 			}
-			return new ResponseWrapper(new ObjectMapper().readValue(stringContents,PostResponse.class));
+			PostResponse result=new ObjectMapper().readValue(stringContents,PostResponse.class);
+			return new ResponseWrapper<PostResponse>(result);
 		}
 		catch(Exception ex)
 		{

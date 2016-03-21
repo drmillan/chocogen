@@ -4,7 +4,6 @@ import ${config.packageName}.gen.model.${type.name};
 #end
 import ${config.packageName}.gen.util.ServiceContext;
 import ${config.packageName}.gen.util.ServiceFilter;
-import ${config.packageName}.gen.util.ServiceUtils;
 import ${config.packageName}.gen.util.ResponseWrapper;
 import org.apache.commons.io.IOUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -63,7 +62,7 @@ public class BaseService
 			{
 				stringContents="{ \"items\":"+stringContents+"}";
 			}
-			return new ResponseWrapper(new ObjectMapper().readValue(stringContents,${message.response}.class));
+			return new ResponseWrapper<${message.response}>(new ObjectMapper().readValue(stringContents,${message.response}.class));
 		}
 		catch(Exception ex)
 		{
