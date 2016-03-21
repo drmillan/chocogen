@@ -1,0 +1,6 @@
+package ${config.packageName}.gen.util;
+public interface ServiceFilter
+{
+	String preFilter(String url);
+	String postFilter(String url);
+}

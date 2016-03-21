@@ -1,0 +1,37 @@
+package ${config.packageName}.gen.model.base;
+#if($protocol.anyArray())
+import java.util.List;
+import java.util.ArrayList;
+#end
+#foreach($type in ${protocol.types})
+import ${config.packageName}.gen.model.${type.name};
+#end
+public class BaseDTO{
+#foreach($type in ${protocol.types})
+	public static class Base${type.name} {
+		#foreach($field in ${type.fields})
+			private ${field.derivedType($config)} ${field.name}=${field.defaultValue($config)};
+		#end
+		#foreach($field in ${type.fields})
+			public ${field.derivedType($config)} get${field.nameFirstUpperCase()}()
+			{
+				return this.${field.name};
+			}
+			public void set${field.nameFirstUpperCase()}(${field.derivedType($config)} ${field.name})
+			{
+				this.${field.name}=${field.name};
+			}
+		#end
+			public String getProperty(String key)
+			{
+		#foreach($field in ${type.fields})
+			if("${field.name}".equals(key))
+			{
+				return String.valueOf(get${field.nameFirstUpperCase()}());
+			}
+		#end
+			return null;				
+			}
+	}
+#end	
+}

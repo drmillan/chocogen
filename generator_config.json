@@ -1,0 +1,6 @@
+{
+	"language":"JAVA",
+	"definitionFile":"test_definition.json",
+	"packageName":"com.chocodev.chocogen.test",
+	"outputFolder":"src/test/java"
+}

@@ -1,0 +1,93 @@
+package ${config.packageName}.gen.service.base;
+#foreach($type in ${protocol.distinctRequestResponses()})
+import ${config.packageName}.gen.model.${type.name};
+#end
+import ${config.packageName}.gen.util.ServiceContext;
+import ${config.packageName}.gen.util.ServiceFilter;
+import ${config.packageName}.gen.util.ServiceUtils;
+import ${config.packageName}.gen.util.ResponseWrapper;
+import org.apache.commons.io.IOUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
+import java.util.List;
+import java.util.ArrayList;
+
+public class BaseService
+{
+	private List<ServiceFilter> filters=new ArrayList<>();
+	public void addFilter(ServiceFilter filter)
+	{
+		this.filters.add(filter);
+	}
+
+
+#foreach($message in ${protocol.messages})
+	public ResponseWrapper<${message.response}> ${message.name}(ServiceContext context,${message.request} request)
+	{
+		try
+		{
+			OkHttpClient client=new OkHttpClient();
+			String url="${message.url}";	
+			url=preFilter(url);
+#foreach($urlParameter in ${message.urlParameters()})
+			if(context.get("")!=null)
+			{
+				url=url.replace("${${urlParameter}}",context.get("${urlParameter}"));
+			}
+			else
+			{
+				url=url.replace("${${urlParameter}}",request.getProperty("${urlParameter}"));
+			}
+#end
+			url=postFilter(url);		
+			Request serviceRequest;
+#if(${message.method}=='post')
+			serviceRequest=new Request.Builder().url(url).post(RequestBody.create(MediaType.parse("application/json"), new ObjectMapper().writeValueAsString(request)) ).build();
+#end
+#if(${message.method}=='delete')
+			serviceRequest=new Request.Builder().url(url).delete(RequestBody.create(MediaType.parse("application/json"), new ObjectMapper().writeValueAsString(request)) ).build();
+#end
+#if(${message.method}=='put')
+			serviceRequest=new Request.Builder().url(url).put(RequestBody.create(MediaType.parse("application/json"), new ObjectMapper().writeValueAsString(request)) ).build();
+#end
+#if(${message.method}=='get')
+			serviceRequest=new Request.Builder().url(url).get().build();
+#end			
+			Response serviceResponse=client.newCall(serviceRequest).execute();
+			String stringContents=IOUtils.toString(serviceResponse.body().charStream());
+			if(stringContents.trim().startsWith("["))
+			{
+				stringContents="{ \"items\":"+stringContents+"}";
+			}
+			return new ResponseWrapper(new ObjectMapper().readValue(stringContents,${message.response}.class));
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		return null;
+	}	
+#end
+	String preFilter(String url)
+	{
+		String returnUrl=url;
+		for(ServiceFilter filter:filters)
+		{
+			returnUrl=filter.preFilter(returnUrl);
+		}
+		return returnUrl;
+	}
+	String postFilter(String url)
+	{
+		String returnUrl=url;
+		for(ServiceFilter filter:filters)
+		{
+			returnUrl=filter.postFilter(returnUrl);
+		}
+		return returnUrl;
+	}	
+}

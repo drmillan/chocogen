@@ -1,0 +1,8 @@
+package ${config.packageName}.gen.model;
+
+import java.io.Serializable;
+import ${config.packageName}.gen.model.base.BaseDTO;
+
+public class ${type.name} extends BaseDTO.Base${type.name} implements Serializable{
+	private static final long serialVersionUID = 1L;
+}
